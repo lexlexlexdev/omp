@@ -1,0 +1,32 @@
+{
+  "version": 3,
+  "skills": {
+    "humanizer": {
+      "source": "blader/humanizer",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/blader/humanizer.git",
+      "skillPath": "SKILL.md",
+      "skillFolderHash": "8b3a17889fbf12bedae20974a3c9f9de746ed754",
+      "installedAt": "2026-05-21T16:42:10.928Z",
+      "updatedAt": "2026-05-21T16:42:25.178Z"
+    },
+    "redis-development": {
+      "source": "redis/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/redis/agent-skills.git",
+      "skillPath": "skills/redis-development/SKILL.md",
+      "skillFolderHash": "b4698b9bece0a0744e48e0850880450351875120",
+      "installedAt": "2026-02-24T05:45:21.653Z",
+      "updatedAt": "2026-02-24T05:45:21.653Z"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "skillFolderHash": "079b06a135401704ea94ab74c7c9d86c92ba259f",
+      "installedAt": "2026-02-20T08:10:51.647Z",
+      "updatedAt": "2026-02-20T08:10:51.647Z"
+    }
+  }
+}

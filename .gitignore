@@ -1,0 +1,35 @@
+# Only configuration and explicitly selected skill sources belong in this repository.
+*
+!.gitignore
+!agent/
+!agent/config.yml
+!agent/AGENTS.md
+!agent/extensions/
+!agent/extensions/rtk.ts
+!agent/extensions/secret-mask.ts
+!agent/themes/
+!agent/themes/carbonfox-transparent.json
+!skills/
+!skills/humanizer/
+!skills/humanizer/**
+!skills/redis-development/
+!skills/redis-development/**
+!skills/vercel-react-best-practices/
+!skills/vercel-react-best-practices/**
+!skills-lock.json
+
+# Never track runtime state, credentials, or operating-system metadata.
+**/.DS_Store
+**/.env
+**/.env.*
+**/*.db
+**/*.db-*
+**/*.sqlite*
+**/*.log
+**/*.lock
+**/auth.json
+**/secrets.yml
+**/secret-placeholder.key
+**/sessions/
+**/cache/
+**/logs/
