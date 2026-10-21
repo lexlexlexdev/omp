@@ -1,14 +1,23 @@
 {
   "version": 3,
   "skills": {
-    "humanizer": {
-      "source": "blader/humanizer",
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/blader/humanizer.git",
-      "skillPath": "SKILL.md",
-      "skillFolderHash": "8b3a17889fbf12bedae20974a3c9f9de746ed754",
-      "installedAt": "2026-05-21T16:42:10.928Z",
-      "updatedAt": "2026-05-21T16:42:25.178Z"
+      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "skillFolderHash": "079b06a135401704ea94ab74c7c9d86c92ba259f",
+      "installedAt": "2026-02-20T08:10:51.647Z",
+      "updatedAt": "2026-02-20T08:10:51.647Z"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/skills.git",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "skillFolderHash": "c2f31172b6f256272305a5e6e7228b258446899f",
+      "installedAt": "2026-02-20T08:10:56.771Z",
+      "updatedAt": "2026-02-20T08:10:56.771Z"
     },
     "redis-development": {
       "source": "redis/agent-skills",
@@ -19,14 +28,43 @@
       "installedAt": "2026-02-24T05:45:21.653Z",
       "updatedAt": "2026-02-24T05:45:21.653Z"
     },
-    "vercel-react-best-practices": {
-      "source": "vercel-labs/agent-skills",
+    "humanizer": {
+      "source": "blader/humanizer",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git",
-      "skillPath": "skills/react-best-practices/SKILL.md",
-      "skillFolderHash": "079b06a135401704ea94ab74c7c9d86c92ba259f",
-      "installedAt": "2026-02-20T08:10:51.647Z",
-      "updatedAt": "2026-02-20T08:10:51.647Z"
+      "sourceUrl": "https://github.com/blader/humanizer.git",
+      "skillPath": "SKILL.md",
+      "skillFolderHash": "8b3a17889fbf12bedae20974a3c9f9de746ed754",
+      "installedAt": "2026-05-21T16:42:10.928Z",
+      "updatedAt": "2026-05-21T16:42:25.178Z"
+    },
+    "orca-cli": {
+      "source": "stablyai/orca",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/stablyai/orca.git",
+      "ref": "b2879bd5aaac5d27c101ccf4171faa25d9f0bb1e",
+      "skillPath": "skills/orca-cli/SKILL.md",
+      "skillFolderHash": "572f7952ac451a30a9c2451b472a639b125ee584",
+      "installedAt": "2026-08-27T14:29:17.004Z",
+      "updatedAt": "2026-10-19T09:32:39.869Z"
     }
-  }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
+  },
+  "lastSelectedAgents": [
+    "amp",
+    "antigravity",
+    "antigravity-cli",
+    "cline",
+    "codex",
+    "cursor",
+    "deepagents",
+    "gemini-cli",
+    "github-copilot",
+    "kimi-code-cli",
+    "opencode",
+    "warp",
+    "zed",
+    "pi"
+  ]
 }

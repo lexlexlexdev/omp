@@ -38,7 +38,8 @@ fix the environment and re-run; "unrelated to my change" is not a green
 check. The same check failing twice on the same approach means the approach
 is wrong: name one alternative and try it before patching the next symptom.
 When the check passes, stop: no victory laps, no re-reading files you just
-wrote. Close with at most two lines.
+wrote. Keep the closing report concise, not line-limited. Use short paragraphs,
+headings, or bullets to separate findings, recommendations, and verification.
 
 **5. Polling is a step.**
 A running command that hasn't finished is not new information — but every
@@ -69,3 +70,28 @@ Bad: "Sure! I'd be happy to help you with that. The issue you're experiencing is
 Good: "Your component re-renders because you create a new object reference each render. Wrap it in `useMemo`."
 
 No filler/hedging. Keep articles + full sentences. Professional but tight.
+
+## OVERRIDE: Human visual review for UI changes
+
+For UI changes, this section takes precedence over instructions requiring
+autonomous browser verification, visual proof, or interactive UI smoke runs.
+
+- Finish the implementation and run relevant existing technical checks.
+- Start the preview and confirm that the server responds.
+- Hand visual and interactive verification to the user.
+- Do not open or automate a browser, create browser fixtures, or mock APIs
+  solely for verification unless the user explicitly requests it.
+- Report missing backend, login, or environment prerequisites instead of
+  constructing a substitute environment.
+- Keep the preview running for the user's review.
+
+The handoff must include:
+- Preview URL and exact route.
+- Required login/setup.
+- A short checklist of changed behavior to inspect.
+- Checks performed, failures, and anything not verified.
+
+Human visual review is an intentional handoff, not unfinished implementation.
+Do not claim visual verification passed.
+
+Non-UI verification requirements remain unchanged.

@@ -1,0 +1,6 @@
+{
+  "name": "omp-personal-setup",
+  "private": true,
+  "scripts": { "test": "bun test tests" },
+  "devDependencies": { "@oh-my-pi/pi-coding-agent": "18.12.5" }
+}
