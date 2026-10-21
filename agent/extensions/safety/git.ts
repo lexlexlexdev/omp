@@ -710,7 +710,7 @@ async function checkCommitLike(invocation: Invocation): Promise<string | undefin
   const state = await ensureMutableRepository(invocation, `git ${invocation.command}`)
   if (typeof state === "string") return state
   if (isProtectedBranch(state.branch)) {
-    return blocked(`git ${invocation.command}`, `it would change history on protected branch ${state.branch}`, "switch to a feature branch before committing, merging, rebasing, cherry-picking, reverting, or pulling")
+    return blocked(`git ${invocation.command}`, `it would change history on protected branch ${state.branch}`, "switch to a feature branch before committing, merging, rebasing, cherry-picking, or reverting")
   }
   if (invocation.command === "rebase") {
     const reason = await checkRebaseTargets(invocation)
@@ -1152,14 +1152,9 @@ async function checkFetchMapping(invocation: Invocation, remote: string, refspec
   return undefined
 }
 
-async function checkFetch(invocation: Invocation, isPull: boolean): Promise<string | undefined> {
+async function checkFetch(invocation: Invocation): Promise<string | undefined> {
   const args = invocation.args
   if (containsDryRun(args, invocation.command)) return undefined
-  if (isPull) {
-    const state = await ensureMutableRepository(invocation, "git pull")
-    if (typeof state === "string") return state
-    if (isProtectedBranch(state.branch)) return blocked("git pull", `it would mutate history on protected branch ${state.branch}`, "switch to a feature branch before pulling")
-  }
 
   let remote: string | undefined
   let all = false
@@ -1461,7 +1456,7 @@ export async function checkGit(argv: string[], cwd: string): Promise<string | un
   if (command === "restore") return checkRestore(args)
   if (command === "branch") return checkBranch(invocation)
   if (command === "commit" || command === "merge" || command === "rebase" || command === "cherry-pick" || command === "revert" || command === "pull" || command === "am") {
-    if (command === "pull") return checkFetch(invocation, true)
+    if (command === "pull") return checkFetch(invocation)
     return checkCommitLike(invocation)
   }
   if (command === "push") return checkPush(invocation)
@@ -1471,7 +1466,7 @@ export async function checkGit(argv: string[], cwd: string): Promise<string | un
     return blocked("git clean", "it can permanently delete untracked files", "review `git clean -nd` output and preserve files before any cleanup")
   }
   if (command === "stash") return checkStash(args)
-  if (command === "fetch") return checkFetch(invocation, false)
+  if (command === "fetch") return checkFetch(invocation)
   if (command === "config") {
     return isConfigMutation(args)
       ? blocked("git config", "configuration writes can change aliases or push/ref policy and are denied", "inspect configuration with `git config --get` and make policy changes outside the guarded shell")
