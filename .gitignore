@@ -7,6 +7,14 @@
 !agent/extensions/
 !agent/extensions/rtk.ts
 !agent/extensions/secret-mask.ts
+!agent/extensions/orca-*.ts
+!agent/extensions/safety-rails.ts
+!agent/extensions/safety/
+!agent/extensions/safety/**
+!tests/
+!tests/**
+!README.md
+!package.json
 !agent/themes/
 !agent/themes/carbonfox-transparent.json
 !skills/
