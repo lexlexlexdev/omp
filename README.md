@@ -9,6 +9,7 @@ Configuration, instructions, extensions, theme, and selected installed skills fo
 ### Allowed
 
 - Ordinary checkout/switch, including checking out a protected branch for inspection.
+- Pulls on every branch, including `main`, `master`, `dev`, and `develop`; ordinary, fast-forward-only, and rebase pulls are allowed.
 - Feature-branch creation, staging, commits, normal pushes, and PR creation.
 - Non-forced file moves/removal, ordinary patch application, repository creation, and worktree operations.
 - Unstaging, normal stash save/apply/pop, and read-only Git commands.
@@ -17,7 +18,7 @@ Configuration, instructions, extensions, theme, and selected installed skills fo
 
 ### Refused
 
-- Direct history changes on `main`, `master`, `dev`, or `develop`, and mutations of their local refs.
+- Direct history changes on `main`, `master`, `dev`, or `develop`, and mutations of their local refs, except updates performed by `git pull`.
 - Pushes to those protected destinations, including implicit/configured destinations and explicit refspecs.
 - Force pushes, leading `+` refspecs, remote branch deletion, mirror pushes, and ambiguous push mappings.
 - Forced checkout/switch, worktree-discarding restore/reset, destructive clean, and stash drop/clear.

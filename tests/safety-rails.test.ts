@@ -185,9 +185,27 @@ test("triangular simple push targets the feature name rather than its upstream m
   expect(await checkShell("git push", repo)).toBeUndefined();
 });
 
-test("pull -n is not a dry run on a protected branch", async () => {
+test("pull -n still checks unsafe configured fetch destinations", async () => {
   await git("switch", "main");
+  await git("config", "remote.origin.url", join(root, "remote.git"));
+  await git("config", "remote.origin.fetch", "+refs/heads/main:refs/heads/main");
   expect(await checkShell("git pull -n --ff-only origin main", repo)).toBeString();
+});
+
+test("pulls are allowed on every protected branch without weakening push or commit protection", async () => {
+  await git("config", "remote.origin.url", join(root, "remote.git"));
+  await git("config", "remote.origin.fetch", "+refs/heads/*:refs/remotes/origin/*");
+  for (const branch of ["main", "master", "dev", "develop"]) {
+    if (branch !== "main") await git("branch", branch, "main");
+    await git("switch", branch);
+    await git("config", `branch.${branch}.remote`, "origin");
+    await git("config", `branch.${branch}.merge`, `refs/heads/${branch}`);
+    for (const command of ["git pull", `git pull origin ${branch}`, `git pull --ff-only origin ${branch}`, `git pull --rebase origin ${branch}`, `git pull -n origin ${branch}`]) {
+      expect(await checkShell(command, repo), `${branch}: ${command}`).toBeUndefined();
+    }
+    expect(await checkShell("git commit -m forbidden", repo)).toBeString();
+    expect(await checkShell(`git push origin HEAD:${branch}`, repo)).toBeString();
+  }
 });
 
 test("configured updateRefs cannot rewrite protected branches during rebase", async () => {
