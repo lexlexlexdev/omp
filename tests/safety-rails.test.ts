@@ -83,6 +83,64 @@ describe("literal command policy", () => {
   });
 });
 
+describe("GitHub API request policy", () => {
+  const reply = "repos/owner/repo/pulls/162/comments/4464570003/replies";
+  const reads = [
+    "gh api repos/owner/repo/pulls/162/comments",
+    "gh api repos/owner/repo/pulls/162/comments --method GET",
+    "gh api --method=GET search/issues --raw-field 'q=repo:owner/repo is:open'",
+    "gh api repos/owner/repo/issues -iXGET -F per_page=100 --paginate --slurp",
+    "gh api user -X=GET --hostname github.com -H 'Accept: application/vnd.github+json'",
+    "gh api user -X GET --jq '--hostname'",
+    "gh api user -X GET --template '{{.login}}' -p example --cache 1h",
+    "gh api --method GET -- repos/owner/repo/releases",
+  ];
+  const replies = [
+    `gh api ${reply} -f 'body=Fixed in 7c2b40a.' --jq '.html_url'`,
+    `gh api /${reply} --method POST --raw-field=body=Fixed.`,
+    `gh api -XPOST -ifbody=Fixed. ${reply}`,
+    `gh api ${reply} -f 'body=@reviewer: fixed = verified' --paginate=false`,
+  ];
+  const unsafe = [
+    "gh api repos/owner/repo/merges -X POST -f base=main",
+    "gh api repos/owner/repo/pulls/162/merge --method PUT",
+    "gh api repos/owner/repo/issues/comments/123 -X DELETE",
+    "gh api user --method PATCH -f name=Changed",
+    "gh api repos/owner/repo/issues -f title=Unexpected",
+    "gh api user --method GET --method DELETE",
+    "gh api user -XGET -XPOST",
+    "gh api user -X GET --input request.json",
+    "gh api user -X GET -F query=@private.txt",
+    "gh api graphql -X GET -f 'query=mutation{deleteIssue(input:{id:\"123\"}){clientMutationId}}'",
+    "gh api https://api.github.com/graphql -X GET -f 'query={viewer{login}}'",
+    "gh api /%67raphql -X GET -f 'query={viewer{login}}'",
+    "gh api repos/../graphql -X GET -f 'query={viewer{login}}'",
+    "gh api /graphql// -X GET -f 'query={viewer{login}}'",
+    "gh api user -X GET -H 'X-HTTP-Method-Override: DELETE'",
+    "gh api user -X GET --unknown-option value",
+    "gh api user --method",
+    "gh api repos/owner/repo/pulls/162/merge -X PUT --jq --help",
+    "gh api user -X GET -H 'X-Method-Override: POST'",
+    `gh api ${reply} --input comment.json`,
+    `gh api ${reply} -F body=@private.txt`,
+    `gh api ${reply} -f body=Fixed. -f extra=value`,
+    `gh api ${reply} -f body=First -f body=Second`,
+    `gh api ${reply} -f body=`,
+    `gh api ${reply} -f body=Fixed. --paginate`,
+    `gh api ${reply}?other=endpoint -f body=Fixed.`,
+    `gh api ${reply}/../merge -f body=Fixed.`,
+    `gh api ${reply} -X DELETE -f body=Fixed.`,
+    `gh api ${reply} -f body=Fixed. repos/owner/repo/merges`,
+    `gh api repos/owner/repo/pulls/162/comments/0/replies -f body=Fixed.`,
+  ];
+  for (const command of [...reads, ...replies]) test(`allows ${command}`, async () => {
+    expect(await checkShell(command, repo)).toBeUndefined();
+  });
+  for (const command of unsafe) test(`blocks ${command}`, async () => {
+    expect(await checkShell(command, repo)).toBeString();
+  });
+});
+
 test("protected branch blocks commits and history mutation but allows inspection and unstaging", async () => {
   await git("switch", "main");
   for (const command of ["git commit -m update", "git merge feature/test", "git rebase feature/test", "git reset HEAD~1"]) {

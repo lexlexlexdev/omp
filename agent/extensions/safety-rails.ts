@@ -265,10 +265,100 @@ function normalizeContinuations(command: string): string {
   return result;
 }
 
+function checkGhApi(args: string[]): string | undefined {
+  let endpoint: string | undefined, method: string | undefined;
+  let fields = 0, literalBody = false, paginate = false, help = false, options = true;
+  const shortValues: Record<string, string> = {
+    X: "method", f: "raw-field", F: "field", H: "header", q: "jq", t: "template", p: "preview",
+  };
+  const valueOption = (name: string, value: string | undefined): string | undefined => {
+    if (value === undefined) return `GitHub API option '--${name}' requires a literal value.`;
+    switch (name) {
+      case "method":
+        if (method !== undefined) return "Repeated GitHub API methods cannot be inspected safely.";
+        method = value;
+        return;
+      case "raw-field":
+      case "field": {
+        const separator = value.indexOf("=");
+        if (name === "field" && separator >= 0 && value[separator + 1] === "@") {
+          return "GitHub API parameters read from files or stdin are not allowed.";
+        }
+        fields++;
+        literalBody = name === "raw-field" && value.startsWith("body=") && value.length > 5;
+        return;
+      }
+      case "header":
+        if (/^\s*(?:x-http-method-override|x-http-method|x-method-override)\s*:/i.test(value)) {
+          return "GitHub API method-override headers are not allowed.";
+        }
+        return;
+      case "jq":
+      case "template":
+      case "preview":
+      case "cache":
+      case "hostname":
+        return;
+      case "input":
+        return "GitHub API request bodies read from files or stdin are not allowed.";
+      default:
+        return `GitHub API option '--${name}' cannot be inspected safely.`;
+    }
+  };
+  for (let index = 0; index < args.length; index++) {
+    const arg = args[index];
+    if (options && arg === "--") { options = false; continue; }
+    if (options && arg.startsWith("--")) {
+      const separator = arg.indexOf("=");
+      const name = arg.slice(2, separator < 0 ? undefined : separator);
+      const inline = separator < 0 ? undefined : arg.slice(separator + 1);
+      if (["include", "silent", "paginate", "slurp", "verbose", "allow-escape-sequences", "help"].includes(name)) {
+        if (inline !== undefined && inline !== "true" && inline !== "false") return `Invalid GitHub API boolean option '--${name}'.`;
+        if (name === "paginate") paginate = inline !== "false";
+        if (name === "help") help = inline !== "false";
+        continue;
+      }
+      const reason = valueOption(name, inline ?? args[++index]);
+      if (reason) return reason;
+    } else if (options && arg.startsWith("-") && arg.length > 1) {
+      for (let offset = 1; offset < arg.length; offset++) {
+        const flag = arg[offset];
+        if ("ish".includes(flag)) { if (flag === "h") help = true; continue; }
+        const name = shortValues[flag];
+        if (!name) return `GitHub API flag '-${flag}' cannot be inspected safely.`;
+        const attached = arg.slice(offset + 1);
+        const value = attached ? attached.replace(/^=/, "") : args[++index];
+        const reason = valueOption(name, value);
+        if (reason) return reason;
+        break;
+      }
+    } else {
+      if (endpoint !== undefined) return "GitHub API requests must have one literal endpoint.";
+      endpoint = arg;
+    }
+  }
+  if (help) return;
+  if (!endpoint) return "GitHub API requests require a literal endpoint.";
+  const requestMethod = method ?? (fields ? "POST" : "GET");
+  if (requestMethod === "GET") {
+    // GraphQL needs a separate operation-aware policy; GET must not unlock mutation payloads.
+    try {
+      const path = decodeURIComponent(new URL(endpoint, "https://api.github.com/").pathname);
+      if (/^\/+graphql\/*$/i.test(path)) return "GraphQL requests are not covered by the read-only REST allowance.";
+    } catch { return "GitHub API endpoint cannot be inspected safely."; }
+    return;
+  }
+  if (requestMethod === "POST" && fields === 1 && literalBody && !paginate &&
+      /^\/?repos\/[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+\/pulls\/[1-9]\d*\/comments\/[1-9]\d*\/replies$/.test(endpoint)) return;
+  return "Only read-only REST GET requests and single literal-body PR review-thread replies are allowed through gh api.";
+}
+
 async function checkGh(argv: string[], cwd: string, depth = 0): Promise<{ reason?: string; changesContext?: boolean }> {
   if (depth > 4) return { reason: "GitHub CLI alias recursion is too deep." };
   const args: string[] = [];
   for (let index = 1; index < argv.length; index++) {
+    // Preserve API option values instead of treating them as top-level CLI flags.
+    if (args[0] === "api") { args.push(...argv.slice(index)); break; }
     const arg = argv[index];
     if (["-R", "--repo", "--hostname"].includes(arg)) { index++; continue; }
     if (/^(?:-R.+|--repo=|--hostname=)/.test(arg)) continue;
@@ -294,20 +384,6 @@ async function checkGh(argv: string[], cwd: string, depth = 0): Promise<{ reason
   if (command === "pr" && action === "merge") return { reason: "Automatic PR merging is not allowed. Open the PR for review instead." };
   if (command === "repo" && ["sync", "delete"].includes(action ?? "")) return { reason: "Repository sync/deletion is not allowed. Use a feature branch and open a PR." };
   if (command === "pr" && action === "checkout") return { changesContext: true };
-  if (command === "api") {
-    for (let index = 1; index < args.length; index++) {
-      const arg = args[index];
-      if (arg === "--") break;
-      if (/^--(?:method|field|raw-field|input)(?:=|$)/.test(arg)) return { reason: "Explicit API methods and payloads are not allowed. Use the feature-branch/PR workflow." };
-      if (["--header", "--jq", "--template", "--cache"].includes(arg)) { index++; continue; }
-      if (!arg.startsWith("-") || arg.startsWith("--")) continue;
-      for (let offset = 1; offset < arg.length; offset++) {
-        const flag = arg[offset];
-        if ("XfF".includes(flag)) return { reason: "API method/payload flags, including shorthand clusters, are not allowed." };
-        if ("Hqt".includes(flag)) { if (offset === arg.length - 1) index++; break; }
-        if (!"ips".includes(flag)) return { reason: `GitHub API flag '-${flag}' cannot be inspected safely.` };
-      }
-    }
-  }
+  if (command === "api") return { reason: checkGhApi(args.slice(1)) };
   return {};
 }

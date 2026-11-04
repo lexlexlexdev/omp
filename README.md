@@ -13,6 +13,8 @@ Configuration, instructions, extensions, theme, and selected installed skills fo
 - Feature-branch creation, staging, commits, normal pushes, and PR creation.
 - Non-forced file moves/removal, ordinary patch application, repository creation, and worktree operations.
 - Unstaging, normal stash save/apply/pop, and read-only Git commands.
+- Read-only REST `gh api` requests, including explicit `--method GET` / `-X GET` and literal query parameters.
+- One PR review-thread reply via `POST repos/OWNER/REPO/pulls/NUMBER/comments/ID/replies`, with one non-empty literal `body` supplied through `-f` / `--raw-field`. The method may be implicit; paginated writes are refused.
 - Individual literal file deletion inside the workspace, excluding Git metadata.
 - Recursive cleanup under the repository-root directories `dist`, `build`, `out`, `.next`, `coverage`, `.cache`, and `.tmp`. Outside a Git repository, the explicit command cwd is the cleanup root.
 
@@ -22,7 +24,8 @@ Configuration, instructions, extensions, theme, and selected installed skills fo
 - Pushes to those protected destinations, including implicit/configured destinations and explicit refspecs.
 - Force pushes, leading `+` refspecs, remote branch deletion, mirror pushes, and ambiguous push mappings.
 - Forced checkout/switch, worktree-discarding restore/reset, destructive clean, and stash drop/clear.
-- Automatic PR merge, repository sync/deletion through `gh`, and API calls with explicit methods or payloads.
+- Automatic PR merge, repository sync/deletion through `gh`, and all other API writes.
+- GraphQL requests, file/stdin API payloads or typed file parameters, method-override headers, repeated methods, and unrecognized API options.
 - Arbitrary recursive deletion, workspace/home/root deletion, Git-metadata deletion, glob/variable cleanup targets, symlink traversal, and parent traversal hidden inside a target.
 - Recognizable destructive host operations, privilege escalation, and fetched scripts executed by a shell.
 - Command substitutions, unmodeled shell-state changes, and unclassifiable command prefixes. Literal GitHub CLI aliases are inspected; aliases cannot hide a PR merge.
